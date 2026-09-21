@@ -11,9 +11,7 @@ requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Stephen Johnson" }]
 keywords = ["halloween", "desktop", "overlay", "x11", "gtk"]
-dependencies = [
-  "PyGObject>=3.42",
-]
+dependencies = []  # runtime: system python3-gi / python3-cairo / GTK3
 
 [project.optional-dependencies]
 dev = ["ruff"]
