@@ -97,8 +97,8 @@ class CreatureOverlay(Gtk.Window):
             self.y = random.uniform(0, max(0, sh - self.box_h))
         elif self.creature == "eyes":
             # Larger, stationary: fades in and out at one spot
-            self.box_h = max(72, int(sh * random.uniform(0.12, 0.20)))
-            self.box_w = max(112, int(self.box_h * 1.6))
+            self.box_h = max(120, int(sh * random.uniform(0.22, 0.32)))
+            self.box_w = max(240, int(self.box_h * 1.9))
             self.x = random.uniform(0, max(0, sw - self.box_w))
             self.y = random.uniform(sh * 0.10, max(sh * 0.10, sh * 0.90 - self.box_h))
             lifetime = random.uniform(8.0, 16.0)

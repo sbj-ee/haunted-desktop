@@ -25,38 +25,78 @@ def _soft_fill(cr: cairo.Context, opacity: float) -> None:
 
 
 def _glow_eye(cr: cairo.Context, cx: float, cy: float, rx: float, ry: float, peak: float) -> None:
-    """Dim cool-amber radial glow — not neon, not cartoon."""
+    """Bright amber radial glow with a hot core — not neon, not cartoon."""
     # Outer haze
     g = cairo.RadialGradient(cx, cy, 0, cx, cy, max(rx, ry) * 2.2)
-    g.add_color_stop_rgba(0.0, 0.72, 0.62, 0.38, peak * 0.55)
-    g.add_color_stop_rgba(0.35, 0.55, 0.48, 0.28, peak * 0.28)
+    g.add_color_stop_rgba(0.0, 0.95, 0.78, 0.38, peak * 0.75)
+    g.add_color_stop_rgba(0.35, 0.85, 0.62, 0.25, peak * 0.42)
     g.add_color_stop_rgba(1.0, 0.2, 0.18, 0.12, 0.0)
     cr.set_source(g)
     _ellipse(cr, cx, cy, rx * 2.0, ry * 2.0)
     cr.fill()
-    # Soft core (still dim)
+    # Bright core
     g2 = cairo.RadialGradient(cx, cy, 0, cx, cy, max(rx, ry))
-    g2.add_color_stop_rgba(0.0, 0.85, 0.78, 0.55, peak)
-    g2.add_color_stop_rgba(0.55, 0.65, 0.55, 0.32, peak * 0.35)
+    g2.add_color_stop_rgba(0.0, 1.0, 0.95, 0.72, peak)
+    g2.add_color_stop_rgba(0.55, 0.98, 0.75, 0.35, peak * 0.7)
     g2.add_color_stop_rgba(1.0, 0.3, 0.25, 0.15, 0.0)
     cr.set_source(g2)
     _ellipse(cr, cx, cy, rx, ry)
     cr.fill()
 
 
-def paint_eyes(cr: cairo.Context, w: float, h: float, opacity: float = 0.22) -> None:
-    """Lone pair of dim glowing eyes — sparse meeting-safe easter egg."""
+def _demon_eye(
+    cr: cairo.Context, cx: float, cy: float, ew: float, eh: float, tilt: float, peak: float
+) -> None:
+    """Slanted almond eye: red haze, molten orange core, black vertical slit pupil."""
     cr.save()
-    # Peak alpha stays low even if config opacity is raised
-    peak = max(0.10, min(0.48, opacity * 1.05))
-    cy = h * 0.48
-    # Slightly uneven spacing / height reads more natural
-    spacing = w * random.uniform(0.14, 0.22)
-    rx = w * random.uniform(0.028, 0.042)
-    ry = rx * random.uniform(0.85, 1.15)
-    y_jitter = h * 0.01
-    _glow_eye(cr, w * 0.5 - spacing, cy - y_jitter, rx, ry, peak)
-    _glow_eye(cr, w * 0.5 + spacing, cy + y_jitter * 0.5, rx * 0.95, ry * 1.05, peak * 0.92)
+    cr.translate(cx, cy)
+    cr.rotate(tilt)
+    # Red haze around the eye
+    haze_r = min(ew * 0.85, eh * 2.4)
+    g = cairo.RadialGradient(0, 0, 0, 0, 0, haze_r)
+    g.add_color_stop_rgba(0.0, 1.0, 0.15, 0.03, peak * 0.55)
+    g.add_color_stop_rgba(0.5, 0.75, 0.05, 0.02, peak * 0.22)
+    g.add_color_stop_rgba(1.0, 0.4, 0.0, 0.0, 0.0)
+    cr.set_source(g)
+    cr.arc(0, 0, haze_r, 0, 2 * math.pi)
+    cr.fill()
+    # Almond: flat, heavy upper lid; fuller lower curve
+    hw = ew / 2
+    cr.move_to(-hw, 0)
+    cr.curve_to(-hw * 0.35, -eh * 0.55, hw * 0.4, -eh * 0.6, hw, 0)
+    cr.curve_to(hw * 0.45, eh * 0.85, -hw * 0.4, eh * 0.9, -hw, 0)
+    cr.close_path()
+    g2 = cairo.RadialGradient(0, 0, 0, 0, 0, hw)
+    g2.add_color_stop_rgba(0.0, 1.0, 0.88, 0.25, peak)
+    g2.add_color_stop_rgba(0.45, 1.0, 0.42, 0.06, peak)
+    g2.add_color_stop_rgba(0.85, 0.85, 0.08, 0.02, peak)
+    g2.add_color_stop_rgba(1.0, 0.45, 0.0, 0.0, peak * 0.9)
+    cr.set_source(g2)
+    cr.fill_preserve()
+    # Vertical slit pupil, clipped to the eye
+    cr.save()
+    cr.clip()
+    cr.save()
+    cr.scale(ew * 0.045, eh * 0.8)
+    cr.arc(0, 0.08, 1, 0, 2 * math.pi)
+    cr.restore()
+    cr.set_source_rgba(0.02, 0.0, 0.0, min(1.0, peak * 1.1))
+    cr.fill()
+    cr.restore()
+    cr.restore()
+
+
+def paint_eyes(cr: cairo.Context, w: float, h: float, opacity: float = 0.22) -> None:
+    """Pair of glowing demon eyes: angry slant, molten glow, slit pupils."""
+    cr.save()
+    peak = max(0.30, min(1.0, opacity * 1.3))
+    cy = h * 0.5
+    ew = w * random.uniform(0.28, 0.32)
+    eh = ew * 0.5
+    spacing = w * random.uniform(0.21, 0.25)
+    tilt = random.uniform(0.28, 0.42)  # inner corners lower = angry
+    _demon_eye(cr, w * 0.5 - spacing, cy, ew, eh, tilt, peak)
+    _demon_eye(cr, w * 0.5 + spacing, cy, ew, eh, -tilt, peak)
     cr.restore()
 
 
