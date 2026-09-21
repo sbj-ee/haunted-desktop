@@ -13,13 +13,17 @@ double_chance = 0.06
 # Soft forms + dim glowing eyes
 set = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
 # Visible haunt without going opaque/flashy
-opacity = 0.40
+opacity = 0.75
 # Drift speed (screen-widths per second)
 speed_min = 0.05
 speed_max = 0.14
 # Creature size as fraction of screen height
 scale_min = 0.10
 scale_max = 0.20
+# The head-shaped "shadow" is life-size: ~23 cm tall is ~0.68 of a 34 cm-tall screen.
+# Lower these if it's too big for your monitor.
+shadow_scale_min = 0.65
+shadow_scale_max = 0.70
 lifetime_min_s = 7
 lifetime_max_s = 16
 

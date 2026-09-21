@@ -151,16 +151,35 @@ def paint_spider(cr: cairo.Context, w: float, h: float) -> None:
     cr.restore()
 
 
-def paint_shadow(cr: cairo.Context, w: float, h: float) -> None:
-    """Floor-hugging amorphous shade — most natural / meeting-safe."""
+def _hole(cr: cairo.Context, cx: float, cy: float, rx: float, ry: float, tilt: float = 0.0) -> None:
+    """Add an (optionally tilted) ellipse sub-path; cut out under EVEN_ODD fill."""
     cr.save()
-    cr.translate(0, h * 0.62)
-    cr.move_to(0, h * 0.12)
-    cr.curve_to(w * 0.12, 0, w * 0.28, -h * 0.08, w * 0.42, -h * 0.02)
-    cr.curve_to(w * 0.55, h * 0.06, w * 0.7, -h * 0.1, w * 0.85, 0)
-    cr.curve_to(w * 0.92, h * 0.1, w * 0.65, h * 0.2, w * 0.38, h * 0.16)
-    cr.curve_to(w * 0.18, h * 0.14, w * 0.05, h * 0.18, 0, h * 0.12)
+    cr.translate(cx, cy)
+    cr.rotate(tilt)
+    cr.scale(max(rx, 0.01), max(ry, 0.01))
+    cr.new_sub_path()
+    cr.arc(0, 0, 1, 0, 2 * math.pi)
+    cr.restore()
+
+
+def paint_shadow(cr: cairo.Context, w: float, h: float) -> None:
+    """Head-sized shade in the shape of a Scream mask: long drooping face,
+    teardrop eyes and a stretched open mouth cut out of the silhouette."""
+    cx = w * 0.5
+    cr.save()
+    cr.set_fill_rule(cairo.FILL_RULE_EVEN_ODD)
+    # Hooded head tapering to a long, pointed chin
+    cr.move_to(cx, h * 0.01)
+    cr.curve_to(cx + w * 0.42, h * 0.01, cx + w * 0.46, h * 0.30, cx + w * 0.34, h * 0.58)
+    cr.curve_to(cx + w * 0.26, h * 0.80, cx + w * 0.12, h * 0.96, cx, h * 0.99)
+    cr.curve_to(cx - w * 0.12, h * 0.96, cx - w * 0.26, h * 0.80, cx - w * 0.34, h * 0.58)
+    cr.curve_to(cx - w * 0.46, h * 0.30, cx - w * 0.42, h * 0.01, cx, h * 0.01)
     cr.close_path()
+    # Eyes: drooping teardrops, outer corners sagging down
+    _hole(cr, cx - w * 0.17, h * 0.34, w * 0.075, h * 0.085, tilt=0.35)
+    _hole(cr, cx + w * 0.17, h * 0.34, w * 0.075, h * 0.085, tilt=-0.35)
+    # Mouth: long open oval, the mask's scream
+    _hole(cr, cx, h * 0.70, w * 0.115, h * 0.155)
     cr.fill()
     cr.restore()
 
@@ -210,6 +229,4 @@ def draw_creature(
     _soft_fill(cr, opacity)
     painter = PAINTERS.get(name, paint_shadow)
     painter(cr, float(w), float(h))
-    # Rare dim eyes nested in a floor shadow
-    if name == "shadow" and random.random() < 0.12:
-        paint_eyes_accent(cr, float(w), float(h), opacity)
+

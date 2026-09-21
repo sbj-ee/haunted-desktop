@@ -65,7 +65,7 @@ class CreatureOverlay(Gtk.Window):
 
         ccfg = cfg.get("creature", {})
         self.creature = creature or pick_creature(list(ccfg.get("set", ["ghost"])))
-        self.opacity = float(ccfg.get("opacity", 0.55))
+        self.opacity = float(ccfg.get("opacity", 0.75))
         speed = random.uniform(float(ccfg.get("speed_min", 0.08)), float(ccfg.get("speed_max", 0.22)))
         scale = random.uniform(float(ccfg.get("scale_min", 0.12)), float(ccfg.get("scale_max", 0.28)))
         lifetime = random.uniform(
@@ -86,27 +86,32 @@ class CreatureOverlay(Gtk.Window):
         if self.creature == "bat":
             self.y = random.uniform(sh * 0.05, sh * 0.45)
         elif self.creature == "shadow":
-            self.y = sh - self.box_h - random.uniform(0, sh * 0.08)
+            # Life-size human head (~23 cm tall): sized as a fraction of screen height
+            self.box_h = max(48, int(sh * random.uniform(
+                float(ccfg.get("shadow_scale_min", 0.65)),
+                float(ccfg.get("shadow_scale_max", 0.70)),
+            )))
+            self.box_w = max(48, int(self.box_h * 0.55))
+            # Stationary: appears somewhere on screen, fades in, fades out
+            self.x = random.uniform(0, max(0, sw - self.box_w))
+            self.y = random.uniform(0, max(0, sh - self.box_h))
         elif self.creature == "eyes":
-            self.y = random.uniform(sh * 0.25, sh * 0.75)
-            self.box_h = max(36, int(sh * random.uniform(0.04, 0.08)))
-            self.box_w = max(56, int(self.box_h * 1.6))
-            if self.direction > 0:
-                self.x = -float(self.box_w) * 0.4
-            else:
-                self.x = float(sw) - self.box_w * 0.6
-            speed = random.uniform(
-                float(ccfg.get("speed_min", 0.03)) * 0.35,
-                float(ccfg.get("speed_max", 0.08)) * 0.55,
-            )
-            lifetime = random.uniform(10.0, 22.0)
+            # Larger, stationary: fades in and out at one spot
+            self.box_h = max(72, int(sh * random.uniform(0.12, 0.20)))
+            self.box_w = max(112, int(self.box_h * 1.6))
+            self.x = random.uniform(0, max(0, sw - self.box_w))
+            self.y = random.uniform(sh * 0.10, max(sh * 0.10, sh * 0.90 - self.box_h))
+            lifetime = random.uniform(8.0, 16.0)
         else:
             self.y = random.uniform(sh * 0.15, sh * 0.7)
 
         self.vx = self.direction * speed * sw  # px / s
+        if self.creature in ("shadow", "eyes"):
+            self.vx = 0.0
         if self.creature == "eyes":
-            self.bob_amp = self.box_h * 0.015
-            self.bob_freq = random.uniform(0.12, 0.28)
+            self.bob_amp, self.bob_freq = 0.0, 0.3
+        elif self.creature == "shadow":
+            self.bob_amp, self.bob_freq = 0.0, 0.3
         else:
             self.bob_amp = self.box_h * (0.06 if self.creature == "bat" else 0.02)
             self.bob_freq = random.uniform(0.25, 0.55)  # slow, natural drift

@@ -2,12 +2,12 @@
 
 Quiet Halloween easter egg for a **Linux desktop that coworkers might see behind you on a meeting camera**.
 
-Soft shadowy silhouettes (wisps, distant bats, floor shades, rare dim glowing eyes) occasionally drift across the screen at random intervals — low opacity, small, slow — then fade. Easy to miss if you aren’t looking. Not cartoonish, not jump-scare, not a screensaver loop.
+Shadowy silhouettes (drifting bats, cats and spiders, a life-size Scream-mask head, large glowing eyes) show up at random intervals, then fade. The mask head and the eyes fade in and out in place; the rest drift across the screen. Not cartoonish, not jump-scare, not a screensaver loop.
 
 ## Art direction
 
-- **Subtle / natural** — soft silhouettes, cool near-black, no face cutouts or flashy sprites  
-- **Clearly haunted** — default opacity ~0.40, moderate size, spawns every ~1–4 minutes  
+- **Subtle / natural** — soft silhouettes, cool near-black, no flashy sprites; the head is a Scream-mask silhouette with eye and mouth cutouts  
+- **Clearly haunted** — default opacity ~0.75, moderate size, spawns every ~1–4 minutes  
 - **Non-destructive** — click-through overlay, no focus steal, **sound off**  
 - **No tray spam** — CLI + optional systemd user unit only  
 
@@ -64,8 +64,8 @@ Config: `~/.config/haunted-desktop/config.toml`
 Defaults are a visible haunt. Turn the dial if you want it quieter or denser:
 
 - `spawn.interval_min_s` / `interval_max_s` (default 60–240s)  
-- `creature.opacity` (default `0.40`)  
-- `creature.scale_*`, `speed_*`  
+- `creature.opacity` (default `0.75`)  
+- `creature.scale_*`, `shadow_scale_*` (life-size head), `speed_*`  
 - `sound.enabled` — keep `false`
 
 Logs / PID: `~/.cache/haunted-desktop/`
