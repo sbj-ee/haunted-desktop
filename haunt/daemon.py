@@ -11,10 +11,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from gi.repository import GLib, Gtk
-
 from haunt.config import load_config
-from haunt.overlay import ensure_gtk, spawn_once
+from haunt.overlay import ensure_gtk, spawn_once  # pins Gtk 3.0 before gi import
+
+from gi.repository import GLib, Gtk  # noqa: E402
 
 
 def _setup_logging(log_file: str) -> None:

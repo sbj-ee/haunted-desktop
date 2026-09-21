@@ -71,10 +71,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "once":
-        from gi.repository import GLib, Gtk
-
         from haunt.config import load_config
-        from haunt.overlay import ensure_gtk, spawn_once
+        from haunt.overlay import ensure_gtk, spawn_once  # pins Gtk 3.0 before gi import
+
+        from gi.repository import GLib, Gtk
 
         cfg = load_config(args.config)
         ensure_gtk()
