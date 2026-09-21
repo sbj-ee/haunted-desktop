@@ -1,0 +1,37 @@
+# haunt default config — copy to ~/.config/haunt/config.toml to customize
+
+[spawn]
+# Seconds between creature appearances (uniform random in [min, max])
+interval_min_s = 45
+interval_max_s = 180
+# Chance (0–1) to spawn two creatures at once
+double_chance = 0.08
+
+[creature]
+# Which silhouettes to use: ghost, bat, cat, spider, shadow
+set = ["ghost", "bat", "cat", "spider", "shadow"]
+# Overall opacity of the silhouette (0–1)
+opacity = 0.55
+# Horizontal travel speed in screen-widths per second (approx)
+speed_min = 0.08
+speed_max = 0.22
+# Creature size as fraction of screen height
+scale_min = 0.12
+scale_max = 0.28
+# How long each appearance lasts (seconds)
+lifetime_min_s = 6
+lifetime_max_s = 14
+
+[display]
+# Prefer X11 for reliable click-through. Wayland may ignore input shaping.
+backend = "auto"  # auto | x11 | wayland
+# Stay above other windows
+always_on_top = true
+
+[sound]
+# MVP: always muted. Soft FX may land later.
+enabled = false
+
+[daemon]
+pid_file = "~/.cache/haunt/haunt.pid"
+log_file = "~/.cache/haunt/haunt.log"
