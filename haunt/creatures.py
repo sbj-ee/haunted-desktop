@@ -48,7 +48,7 @@ def paint_eyes(cr: cairo.Context, w: float, h: float, opacity: float = 0.22) -> 
     """Lone pair of dim glowing eyes — sparse meeting-safe easter egg."""
     cr.save()
     # Peak alpha stays low even if config opacity is raised
-    peak = max(0.08, min(0.35, opacity * 0.95))
+    peak = max(0.10, min(0.48, opacity * 1.05))
     cy = h * 0.48
     # Slightly uneven spacing / height reads more natural
     spacing = w * random.uniform(0.14, 0.22)
@@ -63,7 +63,7 @@ def paint_eyes(cr: cairo.Context, w: float, h: float, opacity: float = 0.22) -> 
 def paint_eyes_accent(cr: cairo.Context, w: float, h: float, opacity: float) -> None:
     """Tiny eye pair nested in a shadow silhouette (rare accent)."""
     cr.save()
-    peak = max(0.05, min(0.22, opacity * 0.7))
+    peak = max(0.06, min(0.32, opacity * 0.75))
     cx = w * random.uniform(0.35, 0.55)
     cy = h * random.uniform(0.55, 0.68)
     spacing = w * 0.045
@@ -183,12 +183,12 @@ def pick_creature(names: list[str]) -> str:
         valid = list(CREATURE_NAMES)
     # Bias: shadow most common; eyes rarer than the rest
     weight_map = {
-        "shadow": 2.5,
-        "ghost": 1.0,
-        "bat": 1.0,
+        "shadow": 1.6,
+        "ghost": 1.2,
+        "bat": 1.1,
         "cat": 1.0,
-        "spider": 0.8,
-        "eyes": 0.55,
+        "spider": 0.9,
+        "eyes": 1.0,
     }
     weights = [weight_map.get(n, 1.0) for n in valid]
     return random.choices(valid, weights=weights, k=1)[0]

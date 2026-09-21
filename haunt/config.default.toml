@@ -1,28 +1,26 @@
 # haunted-desktop default config — copy to ~/.config/haunted-desktop/config.toml
-# Art direction: subtle, professional-behind-you-on-camera. Soft silhouettes,
-# low opacity, slow drift. Sparse enough to miss if you aren't looking.
-# Not cartoonish, not jump-scare, no loud FX.
+# Art direction: subtle and natural (soft silhouettes, not cartoon/flashy),
+# but clearly haunted — visible enough to notice. Glowing eyes included.
+# Sound off. Not optimized for ultra-quiet meeting backdrops.
 
 [spawn]
-# Rare appearances — quiet easter egg, not a screensaver loop
-interval_min_s = 180
-interval_max_s = 720
-# Almost never two at once
-double_chance = 0.02
+# Noticeable but not a screensaver loop
+interval_min_s = 60
+interval_max_s = 240
+double_chance = 0.06
 
 [creature]
-# Soft shadow forms + rare dim glowing eyes (no loud sprites)
+# Soft forms + dim glowing eyes
 set = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
-# Low opacity — trick of the light
-opacity = 0.22
-# Slow drift (screen-widths per second)
-speed_min = 0.03
-speed_max = 0.08
-# Small — easy to miss on a meeting backdrop
-scale_min = 0.06
-scale_max = 0.12
-# Brief presence
-lifetime_min_s = 8
+# Visible haunt without going opaque/flashy
+opacity = 0.40
+# Drift speed (screen-widths per second)
+speed_min = 0.05
+speed_max = 0.14
+# Creature size as fraction of screen height
+scale_min = 0.10
+scale_max = 0.20
+lifetime_min_s = 7
 lifetime_max_s = 16
 
 [display]
@@ -31,7 +29,6 @@ backend = "auto"  # auto | x11 | wayland
 always_on_top = true
 
 [sound]
-# Always muted for meeting-safe use. Soft FX may land later — still off by default.
 enabled = false
 
 [daemon]

@@ -7,7 +7,7 @@ Soft shadowy silhouettes (wisps, distant bats, floor shades, rare dim glowing ey
 ## Art direction
 
 - **Subtle / natural** — soft silhouettes, cool near-black, no face cutouts or flashy sprites  
-- **Meeting-safe** — sparse spawns (minutes apart), opacity ~0.22, small scale, slow drift  
+- **Clearly haunted** — default opacity ~0.40, moderate size, spawns every ~1–4 minutes  
 - **Non-destructive** — click-through overlay, no focus steal, **sound off**  
 - **No tray spam** — CLI + optional systemd user unit only  
 
@@ -61,10 +61,10 @@ haunted-desktop stop          # kill switch
 Config: `~/.config/haunted-desktop/config.toml`  
 (Legacy `~/.config/haunt/config.toml` still loaded if present.)
 
-Defaults are already meeting-safe. Turn the dial only if you want it more/less rare:
+Defaults are a visible haunt. Turn the dial if you want it quieter or denser:
 
-- `spawn.interval_min_s` / `interval_max_s` (default 180–720s)  
-- `creature.opacity` (default `0.22`)  
+- `spawn.interval_min_s` / `interval_max_s` (default 60–240s)  
+- `creature.opacity` (default `0.40`)  
 - `creature.scale_*`, `speed_*`  
 - `sound.enabled` — keep `false`
 
