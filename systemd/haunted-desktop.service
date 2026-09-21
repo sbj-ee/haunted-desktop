@@ -1,3 +1,4 @@
+# Template: the venv bin/ placeholder in ExecStart/ExecStop is filled in at install time (see README).
 [Unit]
 Description=haunted-desktop — subtle Halloween Linux overlay
 PartOf=graphical-session.target
@@ -5,8 +6,8 @@ After=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=%h/.local/bin/haunted-desktop start
-ExecStop=%h/.local/bin/haunted-desktop stop
+ExecStart=@VENV_BIN@/haunted-desktop start
+ExecStop=@VENV_BIN@/haunted-desktop stop
 Restart=on-failure
 RestartSec=5
 Environment=GDK_BACKEND=x11

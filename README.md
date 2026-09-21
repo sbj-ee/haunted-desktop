@@ -72,13 +72,19 @@ Logs / PID: `~/.cache/haunted-desktop/`
 
 ## systemd --user (optional)
 
+Run from the repo root with the venv created (the unit needs the absolute path to its `bin/`):
+
 ```bash
 mkdir -p ~/.config/systemd/user
-cp systemd/haunted-desktop.service ~/.config/systemd/user/
+sed "s|@VENV_BIN@|$PWD/.venv/bin|g" systemd/haunted-desktop.service \
+  > ~/.config/systemd/user/haunted-desktop.service
 systemctl --user daemon-reload
 systemctl --user enable --now haunted-desktop.service
-systemctl --user stop haunted-desktop.service
+systemctl --user stop haunted-desktop.service      # kill switch
+systemctl --user disable haunted-desktop.service   # don't start at login
 ```
+
+If you move or rebuild the repo/venv, re-run the `sed` step.
 
 Only useful inside a graphical session (`DISPLAY` set).
 
