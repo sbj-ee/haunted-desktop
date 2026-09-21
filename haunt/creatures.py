@@ -202,24 +202,50 @@ def _hole(cr: cairo.Context, cx: float, cy: float, rx: float, ry: float, tilt: f
     cr.restore()
 
 
-def paint_shadow(cr: cairo.Context, w: float, h: float) -> None:
-    """Head-sized shade in the shape of a Scream mask: long drooping face,
-    teardrop eyes and a stretched open mouth cut out of the silhouette."""
+def _mask_outline(cr: cairo.Context, w: float, h: float) -> None:
+    """Hooded head tapering to a long, pointed chin (path only)."""
     cx = w * 0.5
-    cr.save()
-    cr.set_fill_rule(cairo.FILL_RULE_EVEN_ODD)
-    # Hooded head tapering to a long, pointed chin
     cr.move_to(cx, h * 0.01)
     cr.curve_to(cx + w * 0.42, h * 0.01, cx + w * 0.46, h * 0.30, cx + w * 0.34, h * 0.58)
     cr.curve_to(cx + w * 0.26, h * 0.80, cx + w * 0.12, h * 0.96, cx, h * 0.99)
     cr.curve_to(cx - w * 0.12, h * 0.96, cx - w * 0.26, h * 0.80, cx - w * 0.34, h * 0.58)
     cr.curve_to(cx - w * 0.46, h * 0.30, cx - w * 0.42, h * 0.01, cx, h * 0.01)
     cr.close_path()
+
+
+def _mask_holes(cr: cairo.Context, w: float, h: float) -> None:
+    cx = w * 0.5
     # Eyes: drooping teardrops, outer corners sagging down
     _hole(cr, cx - w * 0.17, h * 0.34, w * 0.075, h * 0.085, tilt=0.35)
     _hole(cr, cx + w * 0.17, h * 0.34, w * 0.075, h * 0.085, tilt=-0.35)
     # Mouth: long open oval, the mask's scream
     _hole(cr, cx, h * 0.70, w * 0.115, h * 0.155)
+
+
+def paint_shadow(cr: cairo.Context, w: float, h: float, opacity: float = 0.75) -> None:
+    """Life-size Scream mask: pale bone-white face, black eyes and mouth, soft glow."""
+    a = max(0.05, min(1.0, opacity * 1.25))
+    cx, cy = w * 0.5, h * 0.5
+    cr.save()
+    # Soft cool halo so it reads against dark and busy backgrounds
+    g = cairo.RadialGradient(cx, cy, min(w, h) * 0.2, cx, cy, h * 0.62)
+    g.add_color_stop_rgba(0.0, 0.85, 0.88, 0.95, a * 0.28)
+    g.add_color_stop_rgba(1.0, 0.85, 0.88, 0.95, 0.0)
+    cr.set_source(g)
+    cr.paint()
+    # Face
+    _mask_outline(cr, w, h)
+    face = cairo.LinearGradient(0, 0, 0, h)
+    face.add_color_stop_rgba(0.0, 0.93, 0.93, 0.90, a)
+    face.add_color_stop_rgba(1.0, 0.80, 0.80, 0.78, a)
+    cr.set_source(face)
+    cr.fill_preserve()
+    cr.set_source_rgba(0.05, 0.05, 0.07, a)  # thin dark edge
+    cr.set_line_width(max(2.0, w * 0.012))
+    cr.stroke()
+    # Black eyes and mouth
+    _mask_holes(cr, w, h)
+    cr.set_source_rgba(0.02, 0.02, 0.03, min(1.0, a + 0.1))
     cr.fill()
     cr.restore()
 
@@ -233,7 +259,7 @@ PAINTERS: dict[str, Painter] = {
     # eyes drawn via draw_creature (needs opacity for glow peak)
 }
 
-CREATURE_NAMES = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
+CREATURE_NAMES = ["ghost", "bat", "cat", "spider", "shadow", "eyes", "pair"]
 
 
 def pick_creature(names: list[str]) -> str:
@@ -248,6 +274,7 @@ def pick_creature(names: list[str]) -> str:
         "cat": 1.0,
         "spider": 0.9,
         "eyes": 1.0,
+        "pair": 2.0,  # mask head + demon eyes together
     }
     weights = [weight_map.get(n, 1.0) for n in valid]
     return random.choices(valid, weights=weights, k=1)[0]
@@ -265,6 +292,9 @@ def draw_creature(
     cr.set_operator(cairo.OPERATOR_OVER)
     if name == "eyes":
         paint_eyes(cr, float(w), float(h), opacity)
+        return
+    if name == "shadow":
+        paint_shadow(cr, float(w), float(h), opacity)
         return
     _soft_fill(cr, opacity)
     painter = PAINTERS.get(name, paint_shadow)

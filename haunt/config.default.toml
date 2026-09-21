@@ -11,7 +11,7 @@ double_chance = 0.06
 
 [creature]
 # Soft forms + dim glowing eyes
-set = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
+set = ["ghost", "bat", "cat", "spider", "pair"]
 # Visible haunt without going opaque/flashy
 opacity = 0.75
 # Drift speed (screen-widths per second)

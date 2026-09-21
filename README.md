@@ -2,7 +2,7 @@
 
 Quiet Halloween easter egg for a **Linux desktop that coworkers might see behind you on a meeting camera**.
 
-Shadowy silhouettes (drifting bats, cats and spiders, a life-size Scream-mask head, large glowing eyes) show up at random intervals, then fade. The mask head and the eyes fade in and out in place; the rest drift across the screen. Not cartoonish, not jump-scare, not a screensaver loop.
+Shadowy silhouettes (drifting bats, cats and spiders, a life-size Scream-mask head, large glowing eyes) show up at random intervals, then fade. The mask head and the eyes appear together as a pair, fading in and out in place; the rest drift across the screen. Not cartoonish, not jump-scare, not a screensaver loop.
 
 ## Art direction
 
@@ -51,6 +51,7 @@ CLI aliases: `haunted-desktop` and `haunt`.
 haunted-desktop once
 haunted-desktop once --creature shadow
 haunted-desktop once --creature eyes
+haunted-desktop once --creature pair   # mask head + demon eyes together
 
 # Sparse background daemon
 haunted-desktop start

@@ -47,7 +47,12 @@ def _apply_click_through(window: Gtk.Window) -> None:
 
 
 class CreatureOverlay(Gtk.Window):
-    def __init__(self, cfg: dict[str, Any], creature: str | None = None) -> None:
+    def __init__(
+        self,
+        cfg: dict[str, Any],
+        creature: str | None = None,
+        avoid_x: tuple[float, float] | None = None,
+    ) -> None:
         super().__init__(type=Gtk.WindowType.POPUP)
         self.set_app_paintable(True)
         self.set_decorated(False)
@@ -99,7 +104,15 @@ class CreatureOverlay(Gtk.Window):
             # Larger, stationary: fades in and out at one spot
             self.box_h = max(120, int(sh * random.uniform(0.22, 0.32)))
             self.box_w = max(240, int(self.box_h * 1.9))
-            self.x = random.uniform(0, max(0, sw - self.box_w))
+            lo, hi = 0.0, float(max(0, sw - self.box_w))
+            if avoid_x is not None:
+                # Pair: use the side of the screen with more room beside the other creature
+                left_room, right_room = avoid_x[0] - self.box_w, sw - avoid_x[1] - self.box_w
+                if left_room >= right_room and left_room > 0:
+                    hi = left_room
+                elif right_room > 0:
+                    lo = avoid_x[1]
+            self.x = random.uniform(lo, max(lo, hi))
             self.y = random.uniform(sh * 0.10, max(sh * 0.10, sh * 0.90 - self.box_h))
             lifetime = random.uniform(8.0, 16.0)
         else:
@@ -169,11 +182,20 @@ class CreatureOverlay(Gtk.Window):
         return True
 
 
-def spawn_once(cfg: dict[str, Any], creature: str | None = None) -> CreatureOverlay:
-    win = CreatureOverlay(cfg, creature=creature)
+def _show(win: CreatureOverlay) -> CreatureOverlay:
     win.show_all()
     _apply_click_through(win)
     return win
+
+
+def spawn_once(cfg: dict[str, Any], creature: str | None = None) -> list[CreatureOverlay]:
+    """Spawn a creature; "pair" spawns the mask head and the demon eyes together."""
+    name = creature or pick_creature(list(cfg.get("creature", {}).get("set", ["ghost"])))
+    if name != "pair":
+        return [_show(CreatureOverlay(cfg, creature=name))]
+    mask = CreatureOverlay(cfg, creature="shadow")
+    eyes = CreatureOverlay(cfg, creature="eyes", avoid_x=(mask.x, mask.x + mask.box_w))
+    return [_show(mask), _show(eyes)]
 
 
 def ensure_gtk() -> None:

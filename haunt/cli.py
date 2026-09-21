@@ -26,7 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     p_once = sub.add_parser("once", help="Spawn one creature and exit")
     p_once.add_argument(
         "--creature",
-        choices=["ghost", "bat", "cat", "spider", "shadow", "eyes"],
+        choices=["ghost", "bat", "cat", "spider", "shadow", "eyes", "pair"],
         default=None,
         help="Force a creature type",
     )
@@ -78,10 +78,10 @@ def main(argv: list[str] | None = None) -> int:
 
         cfg = load_config(args.config)
         ensure_gtk()
-        win = spawn_once(cfg, creature=args.creature)
+        wins = spawn_once(cfg, creature=args.creature)
 
         def _poll() -> bool:
-            if not win.get_visible():
+            if not any(w.get_visible() for w in wins):
                 Gtk.main_quit()
                 return False
             return True
