@@ -1,105 +1,85 @@
-# haunt
+# haunted-desktop
 
-Halloween **haunted Linux desktop**: shadowy creatures (ghosts, bats, cats, spiders, creeping shadows) occasionally drift across your screen at random intervals, then vanish.
+Quiet Halloween easter egg for a **Linux desktop that coworkers might see behind you on a meeting camera**.
 
-Non-destructive by design — click-through overlay, no focus steal, mute by default.
+Soft shadowy silhouettes (wisps, distant bats, floor shades) occasionally drift across the screen at random intervals — low opacity, small, slow — then fade. Easy to miss if you aren’t looking. Not cartoonish, not jump-scare, not a screensaver loop.
+
+## Art direction
+
+- **Subtle / natural** — soft silhouettes, cool near-black, no face cutouts or flashy sprites  
+- **Meeting-safe** — sparse spawns (minutes apart), opacity ~0.22, small scale, slow drift  
+- **Non-destructive** — click-through overlay, no focus steal, **sound off**  
+- **No tray spam** — CLI + optional systemd user unit only  
 
 ## Requirements
 
-- Linux with a **composited** desktop (almost everything modern)
-- **Python 3.10+**
-- **GTK 3** + PyGObject + Cairo:
+- Linux with a composited desktop  
+- Python 3.10+  
+- GTK 3 + PyGObject + Cairo:
 
 ```bash
-# Debian / Ubuntu / Protectli-style
+# Debian / Ubuntu
 sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 python3-cairo
-
-# Fedora
-sudo dnf install python3-gobject gtk3 python3-cairo
 ```
 
 ### X11 vs Wayland
 
 | | X11 | Wayland |
 |---|-----|---------|
-| Click-through (input pass-through) | Reliable via Gdk input shape | Best-effort; some compositors still grab |
-| Always-on-top popup | Works | Works on most compositors |
+| Click-through | Reliable (Gdk input shape) | Best-effort |
+| Always-on-top | Works | Usually works |
 
-**Recommendation:** run under **X11** (or XWayland session) for the Halloween prank so clicks never hit a ghost. Set `GDK_BACKEND=x11` or `display.backend = "x11"` in config. Pure Wayland is usable but not guaranteed click-through.
+**Prefer X11** (or `GDK_BACKEND=x11`) so clicks never hit a silhouette.
 
 ## Install
 
 ```bash
-git clone https://github.com/sbj-ee/haunt.git
-cd haunt
-python3 -m venv .venv
-source .venv/bin/activate
-# System GI modules: use --system-site-packages so venv sees apt PyGObject
+git clone https://github.com/sbj-ee/haunted-desktop.git
+cd haunted-desktop
 python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -e .
-haunt init-config
+haunted-desktop init-config
 ```
 
-Or without venv (system packages only):
-
-```bash
-pip install --user -e .
-# ensure ~/.local/bin is on PATH
-```
+CLI aliases: `haunted-desktop` and `haunt`.
 
 ## Run
 
 ```bash
-# One creature, then exit (good smoke test)
-haunt once
-haunt once --creature bat
+# One soft silhouette (smoke test)
+haunted-desktop once
+haunted-desktop once --creature shadow
 
-# Background daemon — random spawns
-haunt start
-
-# Status / kill switch
-haunt status
-haunt stop
+# Sparse background daemon
+haunted-desktop start
+haunted-desktop status
+haunted-desktop stop          # kill switch
 ```
 
-Config: `~/.config/haunt/config.toml` (created by `haunt init-config`).
+Config: `~/.config/haunted-desktop/config.toml`  
+(Legacy `~/.config/haunt/config.toml` still loaded if present.)
 
-Useful knobs:
+Defaults are already meeting-safe. Turn the dial only if you want it more/less rare:
 
-- `spawn.interval_min_s` / `interval_max_s` — how often the house feels haunted  
-- `creature.set` — `ghost`, `bat`, `cat`, `spider`, `shadow`  
-- `creature.opacity`, `speed_*`, `scale_*`, `lifetime_*`  
-- `sound.enabled` — **false** by default (no audio in v0.1)
+- `spawn.interval_min_s` / `interval_max_s` (default 180–720s)  
+- `creature.opacity` (default `0.22`)  
+- `creature.scale_*`, `speed_*`  
+- `sound.enabled` — keep `false`
 
-Logs: `~/.cache/haunt/haunt.log`  
-PID: `~/.cache/haunt/haunt.pid`
+Logs / PID: `~/.cache/haunted-desktop/`
 
 ## systemd --user (optional)
 
 ```bash
 mkdir -p ~/.config/systemd/user
-cp systemd/haunt.service ~/.config/systemd/user/
-# Fix ExecStart if haunt is not in ~/.local/bin
+cp systemd/haunted-desktop.service ~/.config/systemd/user/
 systemctl --user daemon-reload
-systemctl --user enable --now haunt.service
-systemctl --user stop haunt.service   # kill switch
+systemctl --user enable --now haunted-desktop.service
+systemctl --user stop haunted-desktop.service
 ```
 
-Start this only inside a logged-in graphical session so `DISPLAY` is set (or use a desktop autostart `.desktop` instead).
-
-## How it works
-
-1. `haunt start` runs a GTK main loop and schedules the next spawn with a uniform random delay.
-2. Each spawn opens a frameless, RGBA, always-on-top `POPUP` window and draws a Cairo silhouette.
-3. The window’s **input shape** is set empty so mouse/touch pass through to apps below.
-4. The creature drifts (with a light bob), fades, and the window destroys itself.
-
-## Non-goals (v0.1)
-
-- Sound / jump-scare audio  
-- System tray icon (CLI + systemd are the toggles)  
-- Windows / macOS  
+Only useful inside a graphical session (`DISPLAY` set).
 
 ## License
 

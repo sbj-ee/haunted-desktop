@@ -10,13 +10,13 @@ from pathlib import Path
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="haunt",
-        description="Haunted Linux desktop — random spooky silhouettes across the screen.",
+        description="haunted-desktop — subtle Linux overlay — random spooky silhouettes across the screen.",
     )
     parser.add_argument(
         "--config",
         type=Path,
         default=None,
-        help="Config TOML (default: ~/.config/haunt/config.toml)",
+        help="Config TOML (default: ~/.config/haunted-desktop/config.toml)",
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -30,7 +30,7 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Force a creature type",
     )
-    sub.add_parser("init-config", help="Write default config to ~/.config/haunt/config.toml")
+    sub.add_parser("init-config", help="Write default config to ~/.config/haunted-desktop/config.toml")
 
     args = parser.parse_args(argv)
 

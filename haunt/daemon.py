@@ -142,6 +142,6 @@ def run_daemon(once: bool = False, config_path: str | None = None) -> None:
     if not once:
         existing = read_pid(cfg)
         if existing:
-            raise SystemExit(f"haunt already running (pid {existing}). Use: haunt stop")
-    logging.info("haunt starting (once=%s)", once)
+            raise SystemExit(f"haunted-desktop already running (pid {existing}). Use: haunt stop")
+    logging.info("haunted-desktop starting (once=%s)", once)
     HauntApp(cfg, once=once).start()

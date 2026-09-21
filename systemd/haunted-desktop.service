@@ -1,0 +1,15 @@
+[Unit]
+Description=haunted-desktop — subtle Halloween Linux overlay
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/haunted-desktop start
+ExecStop=%h/.local/bin/haunted-desktop stop
+Restart=on-failure
+RestartSec=5
+Environment=GDK_BACKEND=x11
+
+[Install]
+WantedBy=default.target

@@ -3,20 +3,21 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "haunt"
-version = "0.1.0"
-description = "Haunted Linux desktop — random spooky silhouettes drift across the screen"
+name = "haunted-desktop"
+version = "0.1.1"
+description = "Subtle haunted Linux desktop overlay — soft silhouettes for Halloween (meeting-camera safe)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Stephen Johnson" }]
-keywords = ["halloween", "desktop", "overlay", "x11", "gtk"]
+keywords = ["halloween", "desktop", "overlay", "x11", "gtk", "subtle"]
 dependencies = []  # runtime: system python3-gi / python3-cairo / GTK3
 
 [project.optional-dependencies]
 dev = ["ruff"]
 
 [project.scripts]
+haunted-desktop = "haunt.cli:main"
 haunt = "haunt.cli:main"
 
 [tool.setuptools.packages.find]
@@ -24,4 +25,4 @@ where = ["."]
 include = ["haunt*"]
 
 [tool.setuptools.package-data]
-haunt = ["assets/*.svg", "config.default.toml"]
+haunt = ["config.default.toml"]

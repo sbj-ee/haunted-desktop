@@ -91,8 +91,8 @@ class CreatureOverlay(Gtk.Window):
             self.y = random.uniform(sh * 0.15, sh * 0.7)
 
         self.vx = self.direction * speed * sw  # px / s
-        self.bob_amp = self.box_h * (0.15 if self.creature == "bat" else 0.04)
-        self.bob_freq = random.uniform(0.6, 1.4)
+        self.bob_amp = self.box_h * (0.06 if self.creature == "bat" else 0.02)
+        self.bob_freq = random.uniform(0.25, 0.55)  # slow, natural drift
         self.t = 0.0
         self.lifetime = lifetime
         self._surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.box_w, self.box_h)
@@ -124,7 +124,7 @@ class CreatureOverlay(Gtk.Window):
         bob = math.sin(self.t * self.bob_freq * 2 * math.pi) * self.bob_amp
         # Fade in/out
         fade = 1.0
-        edge = 1.2
+        edge = 2.5  # soft fade in/out
         if self.t < edge:
             fade = self.t / edge
         elif self.t > self.lifetime - edge:

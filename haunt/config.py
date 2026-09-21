@@ -1,4 +1,4 @@
-"""Load and merge haunt configuration."""
+"""Load and merge haunted-desktop configuration."""
 
 from __future__ import annotations
 
@@ -9,7 +9,10 @@ from pathlib import Path
 from typing import Any
 
 DEFAULT_PATH = Path(__file__).with_name("config.default.toml")
-USER_PATH = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "haunt" / "config.toml"
+_XDG = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+USER_PATH = _XDG / "haunted-desktop" / "config.toml"
+# Legacy path from early "haunt" name
+LEGACY_USER_PATH = _XDG / "haunt" / "config.toml"
 
 
 def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
@@ -25,11 +28,15 @@ def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]
 def load_config(path: Path | None = None) -> dict[str, Any]:
     with DEFAULT_PATH.open("rb") as f:
         cfg = tomllib.load(f)
-    user = path or USER_PATH
-    if user.is_file():
-        with user.open("rb") as f:
+    user = path
+    if user is None:
+        if USER_PATH.is_file():
+            user = USER_PATH
+        elif LEGACY_USER_PATH.is_file():
+            user = LEGACY_USER_PATH
+    if user is not None and Path(user).is_file():
+        with Path(user).open("rb") as f:
             cfg = _deep_merge(cfg, tomllib.load(f))
-    # Expand ~ in daemon paths
     for key in ("pid_file", "log_file"):
         if key in cfg.get("daemon", {}):
             cfg["daemon"][key] = str(Path(cfg["daemon"][key]).expanduser())
