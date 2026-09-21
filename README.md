@@ -2,7 +2,7 @@
 
 Quiet Halloween easter egg for a **Linux desktop that coworkers might see behind you on a meeting camera**.
 
-Soft shadowy silhouettes (wisps, distant bats, floor shades) occasionally drift across the screen at random intervals — low opacity, small, slow — then fade. Easy to miss if you aren’t looking. Not cartoonish, not jump-scare, not a screensaver loop.
+Soft shadowy silhouettes (wisps, distant bats, floor shades, rare dim glowing eyes) occasionally drift across the screen at random intervals — low opacity, small, slow — then fade. Easy to miss if you aren’t looking. Not cartoonish, not jump-scare, not a screensaver loop.
 
 ## Art direction
 
@@ -50,6 +50,7 @@ CLI aliases: `haunted-desktop` and `haunt`.
 # One soft silhouette (smoke test)
 haunted-desktop once
 haunted-desktop once --creature shadow
+haunted-desktop once --creature eyes
 
 # Sparse background daemon
 haunted-desktop start

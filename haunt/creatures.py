@@ -24,6 +24,56 @@ def _soft_fill(cr: cairo.Context, opacity: float) -> None:
     cr.set_source_rgba(0.07, 0.06, 0.09, max(0.05, min(1.0, opacity)))
 
 
+def _glow_eye(cr: cairo.Context, cx: float, cy: float, rx: float, ry: float, peak: float) -> None:
+    """Dim cool-amber radial glow — not neon, not cartoon."""
+    # Outer haze
+    g = cairo.RadialGradient(cx, cy, 0, cx, cy, max(rx, ry) * 2.2)
+    g.add_color_stop_rgba(0.0, 0.72, 0.62, 0.38, peak * 0.55)
+    g.add_color_stop_rgba(0.35, 0.55, 0.48, 0.28, peak * 0.28)
+    g.add_color_stop_rgba(1.0, 0.2, 0.18, 0.12, 0.0)
+    cr.set_source(g)
+    _ellipse(cr, cx, cy, rx * 2.0, ry * 2.0)
+    cr.fill()
+    # Soft core (still dim)
+    g2 = cairo.RadialGradient(cx, cy, 0, cx, cy, max(rx, ry))
+    g2.add_color_stop_rgba(0.0, 0.85, 0.78, 0.55, peak)
+    g2.add_color_stop_rgba(0.55, 0.65, 0.55, 0.32, peak * 0.35)
+    g2.add_color_stop_rgba(1.0, 0.3, 0.25, 0.15, 0.0)
+    cr.set_source(g2)
+    _ellipse(cr, cx, cy, rx, ry)
+    cr.fill()
+
+
+def paint_eyes(cr: cairo.Context, w: float, h: float, opacity: float = 0.22) -> None:
+    """Lone pair of dim glowing eyes — sparse meeting-safe easter egg."""
+    cr.save()
+    # Peak alpha stays low even if config opacity is raised
+    peak = max(0.08, min(0.35, opacity * 0.95))
+    cy = h * 0.48
+    # Slightly uneven spacing / height reads more natural
+    spacing = w * random.uniform(0.14, 0.22)
+    rx = w * random.uniform(0.028, 0.042)
+    ry = rx * random.uniform(0.85, 1.15)
+    y_jitter = h * 0.01
+    _glow_eye(cr, w * 0.5 - spacing, cy - y_jitter, rx, ry, peak)
+    _glow_eye(cr, w * 0.5 + spacing, cy + y_jitter * 0.5, rx * 0.95, ry * 1.05, peak * 0.92)
+    cr.restore()
+
+
+def paint_eyes_accent(cr: cairo.Context, w: float, h: float, opacity: float) -> None:
+    """Tiny eye pair nested in a shadow silhouette (rare accent)."""
+    cr.save()
+    peak = max(0.05, min(0.22, opacity * 0.7))
+    cx = w * random.uniform(0.35, 0.55)
+    cy = h * random.uniform(0.55, 0.68)
+    spacing = w * 0.045
+    rx = w * 0.012
+    ry = rx * 1.1
+    _glow_eye(cr, cx - spacing, cy, rx, ry, peak)
+    _glow_eye(cr, cx + spacing, cy, rx * 0.95, ry, peak * 0.9)
+    cr.restore()
+
+
 def paint_ghost(cr: cairo.Context, w: float, h: float) -> None:
     """Soft vertical wisp — no face cutouts (too cartoony on camera)."""
     cr.save()
@@ -121,17 +171,26 @@ PAINTERS: dict[str, Painter] = {
     "cat": paint_cat,
     "spider": paint_spider,
     "shadow": paint_shadow,
+    # eyes drawn via draw_creature (needs opacity for glow peak)
 }
+
+CREATURE_NAMES = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
 
 
 def pick_creature(names: list[str]) -> str:
-    valid = [n for n in names if n in PAINTERS]
+    valid = [n for n in names if n in CREATURE_NAMES]
     if not valid:
-        valid = list(PAINTERS)
-    # Bias toward amorphous shadow for meeting-safe default feel
-    weights = []
-    for n in valid:
-        weights.append(2.5 if n == "shadow" else 1.0)
+        valid = list(CREATURE_NAMES)
+    # Bias: shadow most common; eyes rarer than the rest
+    weight_map = {
+        "shadow": 2.5,
+        "ghost": 1.0,
+        "bat": 1.0,
+        "cat": 1.0,
+        "spider": 0.8,
+        "eyes": 0.55,
+    }
+    weights = [weight_map.get(n, 1.0) for n in valid]
     return random.choices(valid, weights=weights, k=1)[0]
 
 
@@ -145,5 +204,12 @@ def draw_creature(
     cr.set_operator(cairo.OPERATOR_CLEAR)
     cr.paint()
     cr.set_operator(cairo.OPERATOR_OVER)
+    if name == "eyes":
+        paint_eyes(cr, float(w), float(h), opacity)
+        return
     _soft_fill(cr, opacity)
-    PAINTERS[name](cr, float(w), float(h))
+    painter = PAINTERS.get(name, paint_shadow)
+    painter(cr, float(w), float(h))
+    # Rare dim eyes nested in a floor shadow
+    if name == "shadow" and random.random() < 0.12:
+        paint_eyes_accent(cr, float(w), float(h), opacity)

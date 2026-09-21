@@ -26,7 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     p_once = sub.add_parser("once", help="Spawn one creature and exit")
     p_once.add_argument(
         "--creature",
-        choices=["ghost", "bat", "cat", "spider", "shadow"],
+        choices=["ghost", "bat", "cat", "spider", "shadow", "eyes"],
         default=None,
         help="Force a creature type",
     )

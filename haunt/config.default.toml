@@ -11,8 +11,8 @@ interval_max_s = 720
 double_chance = 0.02
 
 [creature]
-# Soft shadow forms only (no loud sprites)
-set = ["ghost", "bat", "cat", "spider", "shadow"]
+# Soft shadow forms + rare dim glowing eyes (no loud sprites)
+set = ["ghost", "bat", "cat", "spider", "shadow", "eyes"]
 # Low opacity — trick of the light
 opacity = 0.22
 # Slow drift (screen-widths per second)

@@ -82,17 +82,34 @@ class CreatureOverlay(Gtk.Window):
             self.x = -float(self.box_w)
         else:
             self.x = float(sw)
-        # Prefer lower half / mid for crawling feel; bats higher
+        # Prefer lower half / mid for crawling feel; bats higher; eyes in dim corners
         if self.creature == "bat":
             self.y = random.uniform(sh * 0.05, sh * 0.45)
         elif self.creature == "shadow":
             self.y = sh - self.box_h - random.uniform(0, sh * 0.08)
+        elif self.creature == "eyes":
+            self.y = random.uniform(sh * 0.25, sh * 0.75)
+            self.box_h = max(36, int(sh * random.uniform(0.04, 0.08)))
+            self.box_w = max(56, int(self.box_h * 1.6))
+            if self.direction > 0:
+                self.x = -float(self.box_w) * 0.4
+            else:
+                self.x = float(sw) - self.box_w * 0.6
+            speed = random.uniform(
+                float(ccfg.get("speed_min", 0.03)) * 0.35,
+                float(ccfg.get("speed_max", 0.08)) * 0.55,
+            )
+            lifetime = random.uniform(10.0, 22.0)
         else:
             self.y = random.uniform(sh * 0.15, sh * 0.7)
 
         self.vx = self.direction * speed * sw  # px / s
-        self.bob_amp = self.box_h * (0.06 if self.creature == "bat" else 0.02)
-        self.bob_freq = random.uniform(0.25, 0.55)  # slow, natural drift
+        if self.creature == "eyes":
+            self.bob_amp = self.box_h * 0.015
+            self.bob_freq = random.uniform(0.12, 0.28)
+        else:
+            self.bob_amp = self.box_h * (0.06 if self.creature == "bat" else 0.02)
+            self.bob_freq = random.uniform(0.25, 0.55)  # slow, natural drift
         self.t = 0.0
         self.lifetime = lifetime
         self._surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, self.box_w, self.box_h)
