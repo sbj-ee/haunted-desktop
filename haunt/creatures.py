@@ -250,6 +250,126 @@ def paint_shadow(cr: cairo.Context, w: float, h: float, opacity: float = 0.75) -
     cr.restore()
 
 
+def _alien_head(cr: cairo.Context, w: float, h: float) -> None:
+    """Head + neck outline path: elongated dome, tapering jaw, small chin."""
+    cx = w * 0.5
+    cr.move_to(cx, h * 0.02)
+    cr.curve_to(cx + w * 0.54, h * 0.02, cx + w * 0.46, h * 0.38, cx + w * 0.30, h * 0.60)
+    cr.curve_to(cx + w * 0.22, h * 0.72, cx + w * 0.12, h * 0.80, cx + w * 0.075, h * 0.86)
+    cr.curve_to(cx + w * 0.07, h * 0.92, cx + w * 0.08, h * 0.96, cx + w * 0.085, h)
+    cr.line_to(cx - w * 0.085, h)
+    cr.curve_to(cx - w * 0.08, h * 0.96, cx - w * 0.07, h * 0.92, cx - w * 0.075, h * 0.86)
+    cr.curve_to(cx - w * 0.12, h * 0.80, cx - w * 0.22, h * 0.72, cx - w * 0.30, h * 0.60)
+    cr.curve_to(cx - w * 0.46, h * 0.38, cx - w * 0.54, h * 0.02, cx, h * 0.02)
+    cr.close_path()
+
+
+def _alien_eye_path(cr: cairo.Context, w: float, h: float) -> None:
+    cr.move_to(-w * 0.19, 0)
+    cr.curve_to(-w * 0.09, -h * 0.115, w * 0.11, -h * 0.10, w * 0.21, -h * 0.005)
+    cr.curve_to(w * 0.10, h * 0.105, -w * 0.09, h * 0.135, -w * 0.19, 0)
+    cr.close_path()
+
+
+def paint_alien(cr: cairo.Context, w: float, h: float, opacity: float = 0.75) -> None:
+    """Gray alien head, lit and shaded: mottled skin, deep glossy eyes, no outline."""
+    a = max(0.05, min(1.0, opacity * 1.25))
+    cx = w * 0.5
+    rng = random.Random()
+    cr.save()
+    # Very faint cold glow behind the head
+    g = cairo.RadialGradient(cx, h * 0.4, w * 0.2, cx, h * 0.4, h * 0.66)
+    g.add_color_stop_rgba(0.0, 0.5, 0.85, 0.7, a * 0.16)
+    g.add_color_stop_rgba(1.0, 0.5, 0.85, 0.7, 0.0)
+    cr.set_source(g)
+    cr.paint()
+
+    # --- Skin, clipped to the head ---
+    cr.save()
+    _alien_head(cr, w, h)
+    cr.clip_preserve()
+    base = cairo.LinearGradient(0, 0, 0, h)
+    base.add_color_stop_rgba(0.0, 0.62, 0.65, 0.60, a)
+    base.add_color_stop_rgba(0.6, 0.52, 0.56, 0.52, a)
+    base.add_color_stop_rgba(1.0, 0.38, 0.42, 0.39, a)
+    cr.set_source(base)
+    cr.fill()
+    # Mottled, slightly waxy skin
+    for _ in range(420):
+        x, y = rng.uniform(0, w), rng.uniform(0, h)
+        r = rng.uniform(0.004, 0.014) * w
+        if rng.random() < 0.55:
+            cr.set_source_rgba(0.22, 0.27, 0.24, rng.uniform(0.03, 0.07) * a)
+        else:
+            cr.set_source_rgba(0.85, 0.9, 0.85, rng.uniform(0.03, 0.06) * a)
+        cr.arc(x, y, r, 0, 2 * math.pi)
+        cr.fill()
+    # Key light from the upper left, falling to dark edges (gives volume)
+    lit = cairo.RadialGradient(cx - w * 0.12, h * 0.26, h * 0.03, cx, h * 0.42, h * 0.62)
+    lit.add_color_stop_rgba(0.0, 0.92, 0.97, 0.93, 0.26 * a)
+    lit.add_color_stop_rgba(0.5, 0.0, 0.0, 0.0, 0.0)
+    lit.add_color_stop_rgba(1.0, 0.0, 0.03, 0.02, 0.62 * a)
+    cr.set_source(lit)
+    cr.paint()
+    # Neck falls into shadow
+    neck = cairo.LinearGradient(0, h * 0.72, 0, h)
+    neck.add_color_stop_rgba(0.0, 0.0, 0.0, 0.0, 0.0)
+    neck.add_color_stop_rgba(1.0, 0.0, 0.02, 0.01, 0.6 * a)
+    cr.set_source(neck)
+    cr.paint()
+    cr.restore()
+
+    # --- Eyes: socket shadow, deep glossy black, soft reflections ---
+    for sign in (-1, 1):
+        cr.save()
+        cr.translate(cx + sign * w * 0.20, h * 0.44)
+        cr.rotate(-sign * 0.42)
+        sock = cairo.RadialGradient(0, 0, w * 0.12, 0, 0, w * 0.34)
+        sock.add_color_stop_rgba(0.0, 0.0, 0.02, 0.01, 0.5 * a)
+        sock.add_color_stop_rgba(1.0, 0.0, 0.02, 0.01, 0.0)
+        cr.set_source(sock)
+        cr.arc(0, 0, w * 0.34, 0, 2 * math.pi)
+        cr.fill()
+        _alien_eye_path(cr, w, h)
+        cr.save()
+        cr.clip()
+        eye = cairo.RadialGradient(-w * 0.05, -h * 0.03, w * 0.01, 0, 0, w * 0.22)
+        eye.add_color_stop_rgba(0.0, 0.10, 0.14, 0.15, min(1.0, a + 0.1))
+        eye.add_color_stop_rgba(0.55, 0.01, 0.02, 0.02, min(1.0, a + 0.1))
+        eye.add_color_stop_rgba(1.0, 0.0, 0.0, 0.0, min(1.0, a + 0.1))
+        cr.set_source(eye)
+        cr.paint()
+        # Broad soft window reflection
+        refl = cairo.RadialGradient(-w * 0.07, -h * 0.045, 0, -w * 0.07, -h * 0.045, w * 0.09)
+        refl.add_color_stop_rgba(0.0, 0.85, 0.95, 1.0, 0.30 * a)
+        refl.add_color_stop_rgba(1.0, 0.85, 0.95, 1.0, 0.0)
+        cr.set_source(refl)
+        cr.paint()
+        # Tiny hard specular
+        cr.set_source_rgba(0.95, 1.0, 1.0, 0.7 * a)
+        cr.arc(-w * 0.075, -h * 0.05, max(1.5, w * 0.008), 0, 2 * math.pi)
+        cr.fill()
+        cr.restore()
+        cr.restore()
+
+    # --- Nostril slits and a thin, nearly flat mouth ---
+    cr.set_source_rgba(0.04, 0.07, 0.06, 0.75 * a)
+    for sign in (-1, 1):
+        cr.save()
+        cr.translate(cx + sign * w * 0.016, h * 0.635)
+        cr.rotate(sign * 0.4)
+        cr.scale(max(1.0, w * 0.004), max(2.0, w * 0.009))
+        cr.arc(0, 0, 1, 0, 2 * math.pi)
+        cr.restore()
+        cr.fill()
+    cr.set_source_rgba(0.04, 0.07, 0.06, 0.7 * a)
+    cr.set_line_width(max(1.2, w * 0.006))
+    cr.move_to(cx - w * 0.05, h * 0.725)
+    cr.curve_to(cx - w * 0.02, h * 0.728, cx + w * 0.02, h * 0.728, cx + w * 0.05, h * 0.724)
+    cr.stroke()
+    cr.restore()
+
+
 PAINTERS: dict[str, Painter] = {
     "ghost": paint_ghost,
     "bat": paint_bat,
@@ -259,7 +379,7 @@ PAINTERS: dict[str, Painter] = {
     # eyes drawn via draw_creature (needs opacity for glow peak)
 }
 
-CREATURE_NAMES = ["ghost", "bat", "cat", "spider", "shadow", "eyes", "pair"]
+CREATURE_NAMES = ["ghost", "bat", "cat", "spider", "shadow", "eyes", "pair", "alien"]
 
 
 def pick_creature(names: list[str]) -> str:
@@ -275,6 +395,7 @@ def pick_creature(names: list[str]) -> str:
         "spider": 0.9,
         "eyes": 1.0,
         "pair": 2.0,  # mask head + demon eyes together
+        "alien": 1.5,
     }
     weights = [weight_map.get(n, 1.0) for n in valid]
     return random.choices(valid, weights=weights, k=1)[0]
@@ -295,6 +416,9 @@ def draw_creature(
         return
     if name == "shadow":
         paint_shadow(cr, float(w), float(h), opacity)
+        return
+    if name == "alien":
+        paint_alien(cr, float(w), float(h), opacity)
         return
     _soft_fill(cr, opacity)
     painter = PAINTERS.get(name, paint_shadow)

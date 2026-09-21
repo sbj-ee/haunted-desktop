@@ -90,13 +90,13 @@ class CreatureOverlay(Gtk.Window):
         # Prefer lower half / mid for crawling feel; bats higher; eyes in dim corners
         if self.creature == "bat":
             self.y = random.uniform(sh * 0.05, sh * 0.45)
-        elif self.creature == "shadow":
+        elif self.creature in ("shadow", "alien"):
             # Life-size human head (~23 cm tall): sized as a fraction of screen height
             self.box_h = max(48, int(sh * random.uniform(
                 float(ccfg.get("shadow_scale_min", 0.65)),
                 float(ccfg.get("shadow_scale_max", 0.70)),
             )))
-            self.box_w = max(48, int(self.box_h * 0.55))
+            self.box_w = max(48, int(self.box_h * (0.75 if self.creature == "alien" else 0.55)))
             # Stationary: appears somewhere on screen, fades in, fades out
             self.x = random.uniform(0, max(0, sw - self.box_w))
             self.y = random.uniform(0, max(0, sh - self.box_h))
@@ -119,11 +119,11 @@ class CreatureOverlay(Gtk.Window):
             self.y = random.uniform(sh * 0.15, sh * 0.7)
 
         self.vx = self.direction * speed * sw  # px / s
-        if self.creature in ("shadow", "eyes"):
+        if self.creature in ("shadow", "eyes", "alien"):
             self.vx = 0.0
         if self.creature == "eyes":
             self.bob_amp, self.bob_freq = 0.0, 0.3
-        elif self.creature == "shadow":
+        elif self.creature in ("shadow", "alien"):
             self.bob_amp, self.bob_freq = 0.0, 0.3
         else:
             self.bob_amp = self.box_h * (0.06 if self.creature == "bat" else 0.02)
