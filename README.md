@@ -1,5 +1,7 @@
 # haunted-desktop
 
+![haunted-desktop overlay — Scream-mask pair with demon eyes](docs/screenshot.png)
+
 Quiet Halloween easter egg for a **Linux desktop that coworkers might see behind you on a meeting camera**.
 
 Shadowy silhouettes (drifting bats, cats and spiders, a life-size Scream-mask head, a gray alien head, large glowing demon eyes) show up at random intervals, then fade. The mask head and the eyes appear together as a pair, and the alien head fades in and out in place too; the rest drift across the screen. Not cartoonish, not jump-scare, not a screensaver loop.
