@@ -9,7 +9,7 @@ Shadowy silhouettes (drifting bats, cats and spiders, a life-size Scream-mask he
 ## Art direction
 
 - **Subtle / natural** — soft silhouettes, cool near-black, no flashy sprites; the head is a Scream-mask silhouette with eye and mouth cutouts  
-- **Clearly haunted** — default opacity ~0.75, moderate size, spawns every ~1–4 minutes  
+- **Clearly haunted** — default opacity ~0.75, moderate size, spawns every ~20–90 seconds  
 - **Non-destructive** — click-through overlay, no focus steal, **sound off**  
 - **No tray spam** — CLI + optional systemd user unit only  
 
@@ -67,7 +67,7 @@ Config: `~/.config/haunted-desktop/config.toml`
 
 Defaults are a visible haunt. Turn the dial if you want it quieter or denser:
 
-- `spawn.interval_min_s` / `interval_max_s` (default 60–240s)  
+- `spawn.interval_min_s` / `interval_max_s` (default 20–90s)  
 - `creature.opacity` (default `0.75`)  
 - `creature.scale_*`, `shadow_scale_*` (life-size head), `speed_*`  
 - `sound.enabled` — keep `false`

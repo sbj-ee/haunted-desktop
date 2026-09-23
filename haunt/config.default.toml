@@ -5,8 +5,8 @@
 
 [spawn]
 # Noticeable but not a screensaver loop
-interval_min_s = 60
-interval_max_s = 240
+interval_min_s = 20
+interval_max_s = 90
 double_chance = 0.06
 
 [creature]
